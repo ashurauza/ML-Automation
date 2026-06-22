@@ -9,7 +9,7 @@ import os
 from openpyxl.styles import Font
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname('backend/services/excel_exporter.py')))
-TEMPLATE_PATH = os.path.join('backend', "data", "Quotation & BOM  211862601B1-RA.xlsx")
+TEMPLATE_PATH = os.path.join(BASE_DIR, "Costing", "Quotation+BOM all of package PC4100.xlsx")
 
 def generate_complex_excel_fixed(estimation) -> io.BytesIO:
     wb = load_workbook(TEMPLATE_PATH)

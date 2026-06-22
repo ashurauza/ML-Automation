@@ -21,10 +21,9 @@ def test_sample_pdfs():
     """Test uploading and reading all sample PDFs"""
     
     pdf_files = [
-        "data/sample_aluminum_bracket.pdf",
-        "data/sample_steel_shaft.pdf",
-        "data/sample_plastic_housing.pdf",
-        "data/sample_copper_plate.pdf",
+        "Costing/Phase 2 RFQ package PC4100/ay30018_10152024103531/AY30018.A.pdf",
+        "Costing/Phase 2 RFQ package PC4100/ay30018_10152024103531/DT34380.A.pdf",
+        "Costing/Phase 2 RFQ package PC4100/ay30018_10152024103531/DT34407.A.pdf",
     ]
     
     print_header("🔍 TESTING SAMPLE PDF UPLOADS")

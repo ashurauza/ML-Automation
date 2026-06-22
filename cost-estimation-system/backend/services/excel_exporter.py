@@ -5,7 +5,7 @@ import os
 
 # Base directory
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-TEMPLATE_PATH = os.path.join(BASE_DIR, "data", "Quotation & BOM  211862601B1-RA.xlsx")
+TEMPLATE_PATH = os.path.join(BASE_DIR, "Costing", "Quotation+BOM all of package PC4100.xlsx")
 
 def generate_complex_excel(estimation) -> io.BytesIO:
     """

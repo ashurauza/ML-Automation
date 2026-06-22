@@ -160,7 +160,7 @@ def test_create_parameter():
 def test_pdf_upload():
     test_header("TEST 6: PDF Upload & Feature Extraction")
     try:
-        pdf_path = Path("/Users/ashutoshkumarsingh/Desktop/ML & Automation/cost-estimation-system/data/sample_aluminum_bracket.pdf")
+        pdf_path = Path("/Users/ashutoshkumarsingh/Desktop/ML & Automation/cost-estimation-system/Costing/Phase 2 RFQ package PC4100/ay30018_10152024103531/AY30018.A.pdf")
         
         if not pdf_path.exists():
             test_info("Sample PDF not found, skipping upload test")
