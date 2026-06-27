@@ -84,7 +84,7 @@ def upload_drawing(
 
         if not is_pdf and not is_image:
             logger.warning(f"Unsupported file type: {filename}. Skipping.")
-            continue
+            raise HTTPException(status_code=400, detail=f"Unsupported file type: {filename}. Please upload a PDF or image.")
 
         try:
             # Read and save file
@@ -152,9 +152,11 @@ def upload_drawing(
 
         except Exception as e:
             logger.exception(f"Error processing file {filename}: {str(e)}")
+            error_msg = str(e).replace("Parameter extraction error: ", "")
+            raise HTTPException(status_code=400, detail=f"Failed to process {filename}: {error_msg}")
 
-    if not filenames:
-        raise HTTPException(status_code=400, detail="No valid files processed.")
+    if not file_breakdown:
+        raise HTTPException(status_code=400, detail="No valid files successfully processed.")
 
     try:
         # Create a single estimation record for the assembly

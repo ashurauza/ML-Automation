@@ -63,36 +63,35 @@ export default function EstimationHistory() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {estimations.length === 0 ? (
+            {estimations.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
                   <Typography color="textSecondary">No estimations found</Typography>
                 </TableCell>
               </TableRow>
-            ) : (
-              estimations.map((est) => (
-                <TableRow key={est.id}>
-                  <TableCell>{est.filename}</TableCell>
-                  <TableCell>{est.material_type || 'N/A'}</TableCell>
-                  <TableCell align="right">
-                    {est.total_cost ? `₹${est.total_cost.toLocaleString('en-IN', { maximumFractionDigits: 2 })}` : 'N/A'}
-                  </TableCell>
-                  <TableCell align="right">
-                    {est.estimated_cycle_time ? est.estimated_cycle_time.toFixed(2) : 'N/A'}
-                  </TableCell>
-                  <TableCell>{new Date(est.upload_date).toLocaleString()}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      href={`/estimate/${est.id}`}
-                    >
-                      View
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
             )}
+            {estimations.length > 0 && estimations.map((est) => (
+              <TableRow key={est.id}>
+                <TableCell>{est.filename}</TableCell>
+                <TableCell>{est.material_type || 'N/A'}</TableCell>
+                <TableCell align="right">
+                  {est.total_cost ? '₹' + est.total_cost.toLocaleString('en-IN', { maximumFractionDigits: 2 }) : 'N/A'}
+                </TableCell>
+                <TableCell align="right">
+                  {est.estimated_cycle_time ? est.estimated_cycle_time.toFixed(2) : 'N/A'}
+                </TableCell>
+                <TableCell>{new Date(est.upload_date).toLocaleString()}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    href={`/estimate/${est.id}`}
+                  >
+                    View
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>

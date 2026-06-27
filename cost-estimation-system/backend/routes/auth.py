@@ -59,7 +59,8 @@ def login_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt, JWTError
+import jwt
+from jwt.exceptions import PyJWTError as JWTError
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 

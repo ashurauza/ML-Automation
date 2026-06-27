@@ -345,15 +345,26 @@ class MLService:
             if dimension_list and dimension_list[0]:
                 dimensions_dict["unit"] = dimension_list[0].get("unit", "mm")
 
-        # Apply defaults for missing dimensions
+        # Check if any major dimensions were found
+        has_dimensions = any([
+            dimensions_dict["length"],
+            dimensions_dict["width"],
+            dimensions_dict["height"],
+            dimensions_dict["diameter"],
+            dimensions_dict["radius"]
+        ])
+
+        if not has_dimensions:
+            raise ValueError("Could not extract any structural dimensions (length, width, diameter) from the drawing. Please ensure the drawing is clear or try entering parameters manually.")
+
+        # Provide safe fallback values of 1.0 for math operations 
+        # (if some, but not all, dimensions were found)
         if not dimensions_dict["length"]:
-            dimensions_dict["length"] = 50
+            dimensions_dict["length"] = dimensions_dict["diameter"] or 1.0
         if not dimensions_dict["width"]:
-            dimensions_dict["width"] = 30
+            dimensions_dict["width"] = dimensions_dict["diameter"] or 1.0
         if not dimensions_dict["height"]:
-            dimensions_dict["height"] = 20
-        if not dimensions_dict["diameter"]:
-            dimensions_dict["diameter"] = 25
+            dimensions_dict["height"] = 1.0
 
         return DimensionData(**dimensions_dict)
 

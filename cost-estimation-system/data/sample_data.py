@@ -100,7 +100,9 @@ MATERIAL_PROPERTIES = {
     }
 }
 
+
 # Manufacturing operations and their typical times
+
 OPERATION_TIMES = {
     "turning": 15,      # minutes
     "milling": 20,
