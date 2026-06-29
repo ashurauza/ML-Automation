@@ -2,7 +2,7 @@ services:
   - type: web
     name: cost-estimation-backend
     env: python
-    rootDir: backend
+    rootDir: cost-estimation-system/backend
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
@@ -14,7 +14,7 @@ services:
   - type: web
     name: cost-estimation-frontend
     env: static
-    rootDir: frontend
+    rootDir: cost-estimation-system/frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     envVars:
