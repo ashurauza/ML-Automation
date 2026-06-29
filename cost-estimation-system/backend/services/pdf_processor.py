@@ -130,7 +130,6 @@ class PDFProcessor:
                 "tables": [],
                 "dimensions": [],
                 "annotations": [],
-                "pil_images": [],  # Store PIL images for OpenCV analysis
                 "diagram_count": 0,
                 "diagram_area_ratio": 0.0,
                 "line_density": 0.0,
@@ -156,50 +155,74 @@ class PDFProcessor:
 
             # ── Phase 2: Image-based OCR with preprocessing ──
             try:
-                from pdf2image import convert_from_path
-                images = convert_from_path(filepath, dpi=150)
+                from pdf2image import convert_from_path, pdfinfo_from_path
+                import gc
+                
+                try:
+                    info = pdfinfo_from_path(filepath)
+                    total_pages = info["Pages"]
+                except:
+                    total_pages = 1
+                    
+                # Process only up to 2 pages to prevent OOM
+                max_pages = min(total_pages, 2)
+                
+                for page_num in range(1, max_pages + 1):
+                    images = convert_from_path(
+                        filepath, 
+                        first_page=page_num, 
+                        last_page=page_num, 
+                        dpi=150,
+                        thread_count=1
+                    )
+                    
+                    if not images:
+                        continue
+                        
+                    pil_image = images[0]
+                    img_idx = page_num - 1
+
+                    # Preprocess for OCR
+                    preprocessed = self._preprocess_for_ocr(pil_image)
+
+                    # Multi-pass OCR
+                    ocr_text = self._multi_pass_ocr(preprocessed, pil_image)
+
+                    if ocr_text:
+                        extracted_data["text_content"] += (
+                            f"\n--- OCR Page {img_idx + 1} ---\n{ocr_text}"
+                        )
+                        ocr_result.raw_text += ocr_text
+
+                    # Convert PIL Image to OpenCV BGR numpy array
+                    img_np = np.array(pil_image)
+                    img_cv = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
+                    
+                    # Detect diagrams using OpenCV
+                    opencv_results = OpenCVService.detect_diagrams(img_cv, img_idx + 1, "./uploads")
+                    
+                    # Accumulate OpenCV results
+                    extracted_data["diagram_count"] += opencv_results["diagram_count"]
+                    extracted_data["diagram_area_ratio"] = max(extracted_data["diagram_area_ratio"], opencv_results["diagram_area_ratio"])
+                    extracted_data["line_density"] = (extracted_data["line_density"] * img_idx + opencv_results["line_density"]) / (img_idx + 1)
+                    extracted_data["diagram_images"].extend(opencv_results["diagram_images"])
+
+                    # Save image metadata
+                    extracted_data["images"].append({
+                        "page": img_idx + 1,
+                        "width": pil_image.width,
+                        "height": pil_image.height,
+                    })
+                    
+                    # Aggressively free memory
+                    del pil_image, preprocessed, img_np, img_cv, images
+                    gc.collect()
+
             except Exception as e:
                 self.logger.warning(
-                    f"pdf2image failed (poppler not installed?): {e}. "
-                    "Falling back to text-only extraction."
+                    f"Image OCR pipeline failed (missing dependencies?): {e}. "
+                    "Falling back to text-only."
                 )
-                images = []
-
-            for img_idx, pil_image in enumerate(images):
-                # Store PIL image for later OpenCV analysis
-                extracted_data["pil_images"].append(pil_image)
-
-                # Preprocess for OCR
-                preprocessed = self._preprocess_for_ocr(pil_image)
-
-                # Multi-pass OCR
-                ocr_text = self._multi_pass_ocr(preprocessed, pil_image)
-
-                if ocr_text:
-                    extracted_data["text_content"] += (
-                        f"\n--- OCR Page {img_idx + 1} ---\n{ocr_text}"
-                    )
-                    ocr_result.raw_text += ocr_text
-
-                # Convert PIL Image to OpenCV BGR numpy array
-                img_np = np.array(pil_image)
-                img_cv = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
-                
-                # Detect diagrams using OpenCV
-                opencv_results = OpenCVService.detect_diagrams(img_cv, img_idx + 1, "./uploads")
-                
-                # Accumulate OpenCV results
-                extracted_data["diagram_count"] += opencv_results["diagram_count"]
-                extracted_data["diagram_area_ratio"] = max(extracted_data["diagram_area_ratio"], opencv_results["diagram_area_ratio"])
-                extracted_data["line_density"] = (extracted_data["line_density"] * img_idx + opencv_results["line_density"]) / (img_idx + 1)
-                extracted_data["diagram_images"].extend(opencv_results["diagram_images"])
-
-                # Save image metadata
-                extracted_data["images"].append({
-                    "page": img_idx + 1,
-                    "width": pil_image.width,
-                    "height": pil_image.height,
-                })
 
             # Round off accumulated visual stats
             extracted_data["diagram_area_ratio"] = round(extracted_data["diagram_area_ratio"], 4)
@@ -265,8 +288,7 @@ class PDFProcessor:
                 "images": [{"page": 1, "width": pil_image.width, "height": pil_image.height}],
                 "tables": [],
                 "dimensions": [],
-                "annotations": [],
-                "pil_images": [pil_image],
+                "annotations": []
             }
 
             # Preprocess + OCR
