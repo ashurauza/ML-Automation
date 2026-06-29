@@ -157,7 +157,7 @@ class PDFProcessor:
             # ── Phase 2: Image-based OCR with preprocessing ──
             try:
                 from pdf2image import convert_from_path
-                images = convert_from_path(filepath, dpi=300)
+                images = convert_from_path(filepath, dpi=150)
             except Exception as e:
                 self.logger.warning(
                     f"pdf2image failed (poppler not installed?): {e}. "
@@ -345,8 +345,6 @@ class PDFProcessor:
         seen_lines = set()
 
         ocr_configs = [
-            ("--psm 6 --oem 3", preprocessed, "block"),
-            ("--psm 11 --oem 3", preprocessed, "sparse"),
             ("--psm 3 --oem 3", original, "auto"),
         ]
 
