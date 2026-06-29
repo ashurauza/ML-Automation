@@ -1,13 +1,11 @@
 services:
   - type: web
     name: cost-estimation-backend
-    env: python
+    env: docker
     rootDir: cost-estimation-system/backend
-    buildCommand: if [ -d "cost-estimation-system/backend" ]; then cd cost-estimation-system/backend; elif [ -d "backend" ]; then cd backend; fi; pip install -r requirements.txt
-    startCommand: if [ -d "cost-estimation-system/backend" ]; then cd cost-estimation-system/backend; elif [ -d "backend" ]; then cd backend; fi; uvicorn main:app --host 0.0.0.0 --port $PORT
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.5
       - key: DATABASE_URL
         sync: false
       - key: JWT_SECRET_KEY
