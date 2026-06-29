@@ -8,9 +8,10 @@ Enhanced pipeline:
 4. Multi-pass OCR with engineering-specific patterns
 5. Extract dimensions, tolerances, GD&T, thread specs, title block data
 """
-import pdfplumber
-from pdf2image import convert_from_path
-import pytesseract
+# Deferred imports for pdfplumber, pdf2image, pytesseract to fix startup hangs
+# import pdfplumber
+# from pdf2image import convert_from_path
+# import pytesseract
 import logging
 from typing import Dict, List, Any, Optional
 import numpy as np
@@ -137,6 +138,7 @@ class PDFProcessor:
             }
 
             # ── Phase 1: Extract text via pdfplumber ──
+            import pdfplumber
             with pdfplumber.open(filepath) as pdf:
                 ocr_result.page_count = len(pdf.pages)
                 for page_idx, page in enumerate(pdf.pages):
@@ -154,6 +156,7 @@ class PDFProcessor:
 
             # ── Phase 2: Image-based OCR with preprocessing ──
             try:
+                from pdf2image import convert_from_path
                 images = convert_from_path(filepath, dpi=300)
             except Exception as e:
                 self.logger.warning(
@@ -347,6 +350,7 @@ class PDFProcessor:
             ("--psm 3 --oem 3", original, "auto"),
         ]
 
+        import pytesseract
         for config, image, pass_name in ocr_configs:
             try:
                 text = pytesseract.image_to_string(image, config=config)

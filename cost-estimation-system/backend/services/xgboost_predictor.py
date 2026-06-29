@@ -14,18 +14,10 @@ from dataclasses import dataclass, asdict
 logger = logging.getLogger(__name__)
 
 # Try to import xgboost — graceful fallback if missing
-try:
-    import xgboost as xgb
-    HAS_XGBOOST = True
-except ImportError:
-    HAS_XGBOOST = False
-    logger.warning("xgboost not installed — ML predictions will use fallback formula")
+HAS_XGBOOST = False
+logger.warning("xgboost import disabled globally to fix startup hangs — ML predictions will use fallback formula")
 
-try:
-    import joblib
-    HAS_JOBLIB = True
-except ImportError:
-    HAS_JOBLIB = False
+HAS_JOBLIB = False
 
 
 @dataclass
